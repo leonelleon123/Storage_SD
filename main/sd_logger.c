@@ -7,25 +7,41 @@
 
 static const char *TAG = "SD";
 
-esp_err_t generate_log_string(sd_t* sd, event_t* evt)
+void sd_generate_file_name(sd_t *sd, event_timestamp_t timestamp, char* file_name, uint8_t full_pathsize)
 {
-    //guardar string generada en sd.data
-    return ESP_OK;
+    snprintf(sd->filename, full_pathsize, "%s%d-%d-%d", file_name, timestamp.Day, timestamp.Month, timestamp.Year);    
 }
-// Function to write in a file the logger data
-esp_err_t write_log(sd_t sd, event_t evt)
+
+void sd_generate_log_path(sd_t *sd, const char* mountpoint, const char* filename, char* fullpath, uint8_t fullpath_size)
 {
-    if (sd.fullpath != NULL) {
-    ESP_LOGI(TAG, "Opening file %.s", sd.fullpath);
-    } else {
-        ESP_LOGE(TAG, "Error: sd.fullpath is NULL");
-    }
-    FILE *f = fopen(sd.fullpath, "w"); //Opening file in write mode
+    snprintf(sd->fullpath, fullpath_size, "%s%s.txt", mountpoint, filename);
+}
+
+void sd_generate_log_data(sd_t *sd, event_timestamp_t timestamp, event_status_e status, event_modules_e module, event_event_e event)
+{
+    char final_timestamp[30];
+    encode_timestamp(timestamp, final_timestamp);
+    char final_module[20]; 
+    strcpy(final_module, encode_event_module(module));
+    char final_event[20];
+    strcpy(final_event, encode_event_event(event));
+    char final_status[20];
+    strcpy(final_status, encode_event_status(status));
+    sprintf(sd->data,"%s; MOD-%s; Evt-%s; Sta-%s", final_timestamp, final_module, final_event, final_status);
+}
+
+
+// Function to write in a file the logger data
+esp_err_t write_log(sd_t *sd)
+{
+    FILE *f = fopen("/sdcard/log_", "w"); //Opening file in write mode
+    //FILE *f = fopen(sd->fullpath, "w"); //Opening file in write mode
+    ESP_LOGE(TAG, "sd path : %s",sd->fullpath);
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open file for writing");
         return ESP_FAIL;
     }
-    fgets(sd.data, sizeof(sd.data), f);
+    fprintf(f, sd->data);
     fclose(f);
     ESP_LOGI(TAG, "File written");
 
@@ -33,6 +49,11 @@ esp_err_t write_log(sd_t sd, event_t evt)
 }
 
 // Functions to encode events
+void encode_timestamp(event_timestamp_t timestamp, char *full_timestamp)
+{
+    sprintf(full_timestamp,"[%d/%d/%d - %d:%d:%d]",timestamp.Day, timestamp.Month, timestamp.Year, timestamp.Hour, timestamp.Minutes, timestamp.Seconds);
+}
+
 char *encode_event_module(event_modules_e type)
 {
     switch(type)

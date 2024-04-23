@@ -4,18 +4,21 @@
     #include "esp_err.h"
     #include <driver/sdmmc_types.h>
 
+    #define SD_DATA_SIZE 200
+
     typedef struct
     {
         esp_err_t status;
         sdmmc_card_t *card;
-        char *fullpath[200];
-        char *mountpoint[10];
-        char *data[200];
+        char *fullpath;
+        char *mountpoint;
+        char *data;
+        char *filename;
     }sd_t;
 
     typedef struct 
     {
-        uint8_t Year;
+        uint16_t Year;
         uint8_t Month;
         uint8_t Day;
         uint8_t Hour;
@@ -49,7 +52,7 @@
 
     typedef struct 
     {
-        event_timestamp_t timestamo;
+        event_timestamp_t timestamp;
         event_modules_e module;
         event_event_e event;
         event_status_e status;

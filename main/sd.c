@@ -1,5 +1,9 @@
 #include <string.h>
+#include <sys/unistd.h>
+#include <sys/stat.h>
 #include "sd.h"
+#include "sd_types.h"
+#include "sdmmc_cmd.h"
 #include "esp_log.h"
 #include "esp_vfs_fat.h"
 #include "driver/spi_master.h"
@@ -14,13 +18,10 @@
 
 static const char *TAG = "SD";
 
-void sd_generate_log_path(const char* mountpoint, const char* filename, char* fullpath, uint8_t fullpath_size )
+esp_err_t sd_init(sd_t sd_handler)
 {
-    snprintf(fullpath, fullpath_size, "%s%s.txt", mountpoint, filename);
-}
-
-esp_err_t sd_init(sdmmc_card_t *card, const char* mountpoint)
-{
+    sdmmc_card_t *card = sd_handler.card;
+    const char* mountpoint = sd_handler.mountpoint;
     // If format_if_mount_failed is set to true, SD card will be partitioned and
     // formatted in case when mounting fails.
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
@@ -75,20 +76,20 @@ esp_err_t sd_init(sdmmc_card_t *card, const char* mountpoint)
     return ret;
 }
 
-void sd_unmounted(sdmmc_card_t *card, const char* mountpoint)
+/*esp_err_t sd_unmounted(sd_t sd_handler)
 {
+    sdmmc_card_t *card = sd_handler.card;
+    const char* mountpoint = sd_handler.mountpoint;
     // Format FATFS
     #ifdef CONFIG_EXAMPLE_FORMAT_SD_CARD
-        ret = esp_vfs_fat_sdcard_format("/sdcard", card);
+        esp_err_t ret = esp_vfs_fat_sdcard_format("/sdcard", card);
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "Failed to format FATFS (%s)", esp_err_to_name(ret));
-            return;
+            return ret;
         }
     #endif
         // All done, unmount partition and disable SPI peripheral
+        esp_err_t ret = ESP_OK;
         esp_vfs_fat_sdcard_unmount(mountpoint, card);
         ESP_LOGI(TAG, "Card unmounted");
-
-        //deinitialize the bus after all devices are removed
-        //spi_bus_free(host.slot);
-}
+}*/
