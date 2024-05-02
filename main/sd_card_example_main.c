@@ -31,6 +31,7 @@ sd_t sd_handler = {
     .filename = filename
 };
 
+//Generar el timestamp de ejemplo para el log
 event_timestamp_t timestamp = {
     .Day = 12,
     .Month = 5,
@@ -40,10 +41,9 @@ event_timestamp_t timestamp = {
     .Seconds = 28
 };
 
+//Variables de ejemplo para el logger
 event_modules_e module = GPS;
-
 event_event_e event = FIXED;
-
 event_status_e status = ON;
 
 sd_generate_file_name(&sd_handler, timestamp, sd_handler.filename, sizeof(fullpath));
@@ -53,9 +53,7 @@ sd_generate_log_data(&sd_handler, timestamp, status, module, event);
 ret = sd_init(sd_handler);
 
 ESP_LOGI(TAG, "%s", sd_handler.data);
-
-//ESP_LOGI(TAG, "%s", sd_handler.fullpath);
-
-ret = write_log(&sd_handler);
+FILE *f;
+ret = write_log(&sd_handler, &f);
 
 }
