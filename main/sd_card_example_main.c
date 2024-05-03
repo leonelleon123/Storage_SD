@@ -53,7 +53,6 @@ sd_generate_log_data(&sd_handler, timestamp, status, module, event);
 ret = sd_init(sd_handler);
 
 ESP_LOGI(TAG, "%s", sd_handler.data);
-FILE *f;
-ret = write_log(&sd_handler, &f);
+ret = write_log(&sd_handler);
 
 }

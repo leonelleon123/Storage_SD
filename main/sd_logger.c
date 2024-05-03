@@ -27,15 +27,13 @@ void sd_generate_log_data(sd_t *sd, event_timestamp_t timestamp, event_status_e 
     strcpy(final_event, encode_event_event(event));
     char final_status[20];
     strcpy(final_status, encode_event_status(status));
-    sprintf(sd->data,"\n%s; MOD-%s; Evt-%s; Sta-%s;", final_timestamp, final_module, final_event, final_status);
+    sprintf(sd->data,"%s; MOD-%s; Evt-%s; Sta-%s;\n", final_timestamp, final_module, final_event, final_status);
 }
 
 // Function to write in a file the logger data
-esp_err_t write_log(sd_t *sd, FILE *f)
+esp_err_t write_log(sd_t *sd)
 {
-    f = fopen(sd->fullpath, "w"); //Opening file in write mode
-    //f = fopen("header.txt", "a");
-    ESP_LOGI(TAG, "SD path: %s", sd->fullpath);
+    FILE *f = fopen(sd->fullpath, "w"); //Opening file in write mode
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open file for writing");
         return ESP_FAIL;
